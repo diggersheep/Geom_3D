@@ -84,12 +84,23 @@ void Viewer::keyPressEvent(QKeyEvent *event)
 				m_mesh.create_cube();
 		break;
 
-			// e extrusion
-			// +/- decale
-			// z/Z shrink
-			// t/T tourne
-
-			// Attention au cas m_selected_quad == -1
+		// e extrusion
+		case Qt::Key_E:
+		break;
+		// +/- decale
+		case Qt::Key_Less:
+		break;
+		case Qt::Key_Greater:
+		break;
+		// z/Z shrink
+		case Qt::Key_Z:
+		break;
+		// t/T tourne
+		case Qt::Key_T:
+			// t
+			// T
+		break;
+		// Attention au cas m_selected_quad == -1
 
 
 		default:

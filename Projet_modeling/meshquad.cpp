@@ -110,12 +110,29 @@ void MeshQuad::clear()
 
 int MeshQuad::add_vertex(const Vec3& P)
 {
-	return 0;
+	m_points.push_back( P );
+	return m_points.size();
 }
 
 
 void MeshQuad::add_quad(int i1, int i2, int i3, int i4)
 {
+	int size = m_points.size();
+
+// condition
+	// cohérence des indices
+	if ( 0 > i1 && i1 > size ) return;
+	if ( 0 > i2 && i2 > size ) return;
+	if ( 0 > i3 && i3 > size ) return;
+	if ( 0 > i4 && i4 > size ) return;
+
+	// non égalité des indices
+	if ( i1 == i2 || i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4 || i3 == i4 ) return;
+
+	m_quad_indices.push_back(i1);
+	m_quad_indices.push_back(i2);
+	m_quad_indices.push_back(i3);
+	m_quad_indices.push_back(i4);
 }
 
 void MeshQuad::convert_quads_to_tris(const std::vector<int>& quads, std::vector<int>& tris)
@@ -125,6 +142,20 @@ void MeshQuad::convert_quads_to_tris(const std::vector<int>& quads, std::vector<
 
 	// Pour chaque quad on genere 2 triangles
 	// Attention a respecter l'orientation des triangles
+	
+	int size = quads.size() / 4;
+
+	for ( int i = 0 ; i < size ; i++ )
+	{
+		int j = i * 4;
+		tris.push_back( quads[j + 0] );
+		tris.push_back( quads[j + 1] );
+		tris.push_back( quads[j + 2] );
+
+		tris.push_back( quads[j + 1] );
+		tris.push_back( quads[j + 2] );
+		tris.push_back( quads[j + 3] );
+	}
 }
 
 void MeshQuad::convert_quads_to_edges(const std::vector<int>& quads, std::vector<int>& edges)
