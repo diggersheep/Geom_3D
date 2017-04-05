@@ -156,13 +156,13 @@ void MeshQuad::convert_quads_to_tris(const std::vector<int>& quads, std::vector<
 
 		// 1er triangle
 		tris.push_back( quads[j + 0] );
-		tris.push_back( quads[j + 1] );
 		tris.push_back( quads[j + 2] );
+		tris.push_back( quads[j + 1] );
 		
 		// 2e triangle
-		tris.push_back( quads[j + 1] );
-		tris.push_back( quads[j + 2] );
+		tris.push_back( quads[j + 0] );
 		tris.push_back( quads[j + 3] );
+		tris.push_back( quads[j + 2] );
 	}
 }
 
@@ -247,14 +247,14 @@ void MeshQuad::create_cube()
 			
 
 	// ajouter 6 faces (sens trigo)
-	this->add_quad(0,4,2,6);
-	this->add_quad(0,4,1,5);
+	this->add_quad(6,2,0,4);
+	this->add_quad(0,1,5,4);
 
-	this->add_quad(1,5,3,7);
-	this->add_quad(4,6,5,7);
+	this->add_quad(3,7,5,1);
+	this->add_quad(6,4,5,7);
 
-	this->add_quad(6,2,7,3);
-	this->add_quad(0,2,1,3);
+	this->add_quad(2,6,7,3);
+	this->add_quad(0,2,3,1);
 
 	gl_update();
 }
