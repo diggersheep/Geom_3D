@@ -148,25 +148,82 @@ void MeshQuad::convert_quads_to_tris(const std::vector<int>& quads, std::vector<
 	for ( int i = 0 ; i < size ; i++ )
 	{
 		int j = i * 4;
+
+		// pas de check de colinéarité
+		// trop gourmand en ressources
+
+		// 1er triangle
 		tris.push_back( quads[j + 0] );
 		tris.push_back( quads[j + 1] );
 		tris.push_back( quads[j + 2] );
-
+		
+		// 2e triangle
 		tris.push_back( quads[j + 1] );
 		tris.push_back( quads[j + 2] );
 		tris.push_back( quads[j + 3] );
 	}
 }
 
+bool MeshQuad::borrowed_edges (int i1, int i2, const std::vector<int>& edges)
+{
+	int size = edges.size() / 2;
+
+	for ( int i = 0 ; i < size ; i++ )
+	{
+		int offset = i * 2;
+		// c'est moche comme condition, mais bon ...
+		if (
+			   ( i1 == edges[offset] || i1 == edges[offset+1] )
+			&& ( i2 == edges[offset] || i2 == edges[offset+1] )
+			)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 void MeshQuad::convert_quads_to_edges(const std::vector<int>& quads, std::vector<int>& edges)
 {
+	// complexité O( n*m )
+
 	edges.clear();
 	edges.reserve(quads.size()); // ( *2 /2 !)
 
 	// Pour chaque quad on genere 4 aretes, 1 arete = 2 indices.
 	// Mais chaque arete est commune a 2 quads voisins !
+	
 	// Comment n'avoir qu'une seule fois chaque arete ?
-
+	// -> check du tableau d'arrêtes
+	int size = edges.size() / 2;
+	for ( int i = 0 ; i < ( size - 1)  ; i++ ) // size -1 car le dernier quads n'a que des arrêtes en commun
+	{
+		int offset = i * 2;
+		// 1er arrête 0-1
+		if ( this->borrowed_edges(quads[offset], quads[offset+1], edges) )
+		{
+			edges.push_back(quads[offset  ]);
+			edges.push_back(quads[offset+1]);
+		}
+		// 2nd arrête 1-2
+		if ( this->borrowed_edges(quads[offset+1], quads[offset+2], edges) )
+		{
+			edges.push_back(quads[offset+1]);
+			edges.push_back(quads[offset+2]);
+		}
+		// 3e arrête 2-3
+		if ( this->borrowed_edges(quads[offset+2], quads[offset+3], edges) )
+		{
+			edges.push_back(quads[offset+2]);
+			edges.push_back(quads[offset+3]);
+		}
+		// 4e arrête 3-0
+		if ( this->borrowed_edges(quads[offset+3], quads[offset], edges) )
+		{
+			edges.push_back(quads[offset+3]);
+			edges.push_back(quads[offset  ]);
+		}
+	}
 }
 
 

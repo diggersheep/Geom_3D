@@ -90,13 +90,14 @@ public:
 	 */
     void convert_quads_to_tris(const std::vector<int>& quads, std::vector<int>& tris);
 
+
 	/**
 	 * @brief convertit les indices de quads en indices d'aretes
 	 * @param quads tableau d'indices des quads [in]
 	 * @param edges tableau d'indices des aretes [out]
 	 */
 	void convert_quads_to_edges(const std::vector<int>& quads, std::vector<int>& edges);
-
+	
 	/**
 	 * @brief create a cube
 	 */
@@ -187,6 +188,14 @@ public:
 	 */
 	void tourne_quad(int q, float a);
 
+private:
+	/**
+	 * @ brief check si une arrête d'un quad est dans la liste des bords
+	 * @ param [in]
+	 * @ param [out]
+	 */
+	bool borrowed_edges (int i1, int i2, const std::vector<int>& edges);
+	
 };
 
 #endif // MESHTRI_H

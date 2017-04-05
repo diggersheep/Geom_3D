@@ -50,10 +50,19 @@ void Viewer::init()
 }
 
 
-
 void Viewer::draw_repere(const Mat4& global)
 {
-	// affiche un repere de taille 1 place suivant global.
+	Mat4 t = global * scale(0.5, 0.5, 0.5);
+
+	m_prim.draw_sphere( t , BLANC);
+    draw_arrow( t * rotateX(270) * translate(0, 0, 1), VERT ); //X
+    draw_arrow( t * rotateY(90) * translate(0, 0, 1), ROUGE ); //Y
+    draw_arrow( t * translate(0,0,1), BLEU ); //Z
+}
+void Viewer::draw_arrow ( const Mat4& t, const Vec3& color )
+{   
+    m_prim.draw_cylinder( t * translate(0,0,0.5) * scale(0.5, 0.5, 2) , color );
+    m_prim.draw_cone( t * translate(0,0,2) , color );
 }
 
 

@@ -63,7 +63,8 @@ protected:
 
     MeshQuad m_mesh;
 
-	void draw_repere(const Mat4& global);
+	void draw_repere( const Mat4& global );
+	void draw_arrow ( const Mat4& t, const Vec3& color );
 
 	int m_selected_quad;
 	glm::mat4 m_selected_frame;
