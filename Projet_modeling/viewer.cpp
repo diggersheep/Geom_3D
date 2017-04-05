@@ -52,7 +52,10 @@ void Viewer::init()
 
 void Viewer::draw_repere(const Mat4& global)
 {
-	Mat4 t = global * scale(0.5, 0.5, 0.5);
+	//mise à l'échelle
+	double size = 1.0 / (double)( 2 + 1 + 0.5 );
+
+	Mat4 t = global * scale(size, size, size);
 
 	m_prim.draw_sphere( t , BLANC);
     draw_arrow( t * rotateX(270) * translate(0, 0, 1), VERT ); //X

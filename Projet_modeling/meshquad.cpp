@@ -1,6 +1,8 @@
 #include "meshquad.h"
 #include "matrices.h"
 
+#include <unistd.h>
+
 MeshQuad::MeshQuad():
 	m_nb_ind_edges(0)
 {
@@ -232,7 +234,27 @@ void MeshQuad::create_cube()
 	clear();
 	// ajouter 8 sommets (-1 +1)
 
+	for ( int x = 0 ; x < 2 ; x++ )
+	{
+		for ( int y = 0 ; y < 2 ; y++)
+		{
+			for ( int z = 0 ; z < 2 ; z++ )
+			{
+				this->add_vertex(Vec3(x, y, z));
+			}
+		}
+	}
+			
+
 	// ajouter 6 faces (sens trigo)
+	this->add_quad(0,4,2,6);
+	this->add_quad(0,4,1,5);
+
+	this->add_quad(1,5,3,7);
+	this->add_quad(4,6,5,7);
+
+	this->add_quad(6,2,7,3);
+	this->add_quad(0,2,1,3);
 
 	gl_update();
 }
