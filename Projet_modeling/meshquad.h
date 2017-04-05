@@ -196,6 +196,8 @@ private:
 	 */
 	bool borrowed_edges (int i1, int i2, const std::vector<int>& edges);
 	
+	Vec3 vector_product ( const Vec3& u, const Vec3& v );
+	Vec3 is_sparta ( void );
 };
 
 #endif // MESHTRI_H

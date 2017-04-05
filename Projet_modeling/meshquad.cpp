@@ -121,7 +121,7 @@ void MeshQuad::add_quad(int i1, int i2, int i3, int i4)
 {
 	int size = m_points.size();
 
-// condition
+	// condition
 	// cohérence des indices
 	if ( 0 > i1 && i1 > size ) return;
 	if ( 0 > i2 && i2 > size ) return;
@@ -234,13 +234,15 @@ void MeshQuad::create_cube()
 	clear();
 	// ajouter 8 sommets (-1 +1)
 
+	double coef = 2; //taille initiale du cube
+
 	for ( int x = 0 ; x < 2 ; x++ )
 	{
 		for ( int y = 0 ; y < 2 ; y++)
 		{
 			for ( int z = 0 ; z < 2 ; z++ )
 			{
-				this->add_vertex(Vec3(x, y, z));
+				this->add_vertex(Vec3(x*coef, y*coef, z*coef));
 			}
 		}
 	}
@@ -255,17 +257,67 @@ void MeshQuad::create_cube()
 
 	this->add_quad(2,6,7,3);
 	this->add_quad(0,2,3,1);
-
 	gl_update();
 }
 
+Vec3 MeshQuad::vector_product ( const Vec3& u, const Vec3& v )
+{
+	double a = u[1]*v[2] - u[2]*v[1];
+	double b = u[2]*v[0] - u[0]*v[2];
+	double c = u[0]*v[1] - u[1]*v[0];
+
+	return Vec3(a, b, c);
+}
+Vec3 MeshQuad::is_sparta ( void ) { return Vec3(); }
 Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
 {
 	// Attention a l'ordre des points !
 	// le produit vectoriel n'est pas commutatif U ^ V = - V ^ U
 	// ne pas oublier de normaliser le resultat.
 
-	return Vec3(0,0,0);
+	Vec3 AB = Vec3( B[0] - A[0], B[1] - A[1], B[2] - A[2] );
+	Vec3 BC = Vec3( C[0] - B[0], C[1] - B[1], C[2] - B[2] );
+	Vec3 CD = Vec3( D[0] - C[0], D[1] - C[1], D[2] - C[2] );
+	Vec3 DA = Vec3( A[0] - D[0], A[1] - D[1], A[2] - D[2] );
+
+	Vec3 n = Vec3();
+
+	n += this->is_sparta();
+	n += this->vector_product(AB, BC);
+	n += this->vector_product(BC, CD);
+	n += this->vector_product(CD, DA);
+	n += this->vector_product(DA, AB);
+
+//	std::cout << "avant normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+	
+	for ( int i = 0 ; i < 3 ; i++)
+		n[i] /= 4.0;
+
+//	std::cout << "avant normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+	
+	double max = n[0];
+	double min = n[0];
+
+	for ( int i = 1 ; i < 3 ; i++)
+	{
+		if ( n[i] > max )
+			max = n[i];
+		else if ( n[i] < min )
+			min = n[i];
+	}
+
+	for ( int i = 0 ; i < 3 ; i++ )
+	{
+		if ( max - min != 0 )
+		n[i] =  ( (n[i] - min) / ( max - min ) );
+	}
+
+//	std::cout << max << "  " << min << std::endl;
+
+//	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+
+
+	return n;
 }
 
 float MeshQuad::area_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
