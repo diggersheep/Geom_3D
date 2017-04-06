@@ -258,16 +258,10 @@ void MeshQuad::create_cube()
 	this->add_quad(2,6,7,3);
 	this->add_quad(0,2,3,1);
 	gl_update();
+
+	std::cout << std::endl; 
 }
 
-Vec3 MeshQuad::vector_product ( const Vec3& u, const Vec3& v )
-{
-	double a = u[1]*v[2] - u[2]*v[1];
-	double b = u[2]*v[0] - u[0]*v[2];
-	double c = u[0]*v[1] - u[1]*v[0];
-
-	return Vec3(a, b, c);
-}
 Vec3 MeshQuad::is_sparta ( void ) { return Vec3(); }
 Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
 {
@@ -283,38 +277,18 @@ Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const
 	Vec3 n = Vec3();
 
 	n += this->is_sparta();
-	n += this->vector_product(AB, BC);
-	n += this->vector_product(BC, CD);
-	n += this->vector_product(CD, DA);
-	n += this->vector_product(DA, AB);
+	n += glm::cross(AB, BC);
+	n += glm::cross(BC, CD);
+	n += glm::cross(CD, DA);
+	n += glm::cross(DA, AB);
 
 //	std::cout << "avant normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
 	
 	for ( int i = 0 ; i < 3 ; i++)
 		n[i] /= 4.0;
 
-//	std::cout << "avant normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
-	
-	double max = n[0];
-	double min = n[0];
-
-	for ( int i = 1 ; i < 3 ; i++)
-	{
-		if ( n[i] > max )
-			max = n[i];
-		else if ( n[i] < min )
-			min = n[i];
-	}
-
-	for ( int i = 0 ; i < 3 ; i++ )
-	{
-		if ( max - min != 0 )
-		n[i] =  ( (n[i] - min) / ( max - min ) );
-	}
-
-//	std::cout << max << "  " << min << std::endl;
-
-//	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+	n = glm::normalize(n);
+	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
 
 
 	return n;
