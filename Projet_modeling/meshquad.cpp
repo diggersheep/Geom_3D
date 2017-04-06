@@ -249,6 +249,7 @@ void MeshQuad::create_cube()
 			
 
 	// ajouter 6 faces (sens trigo)
+
 	this->add_quad(6,2,0,4);
 	this->add_quad(0,1,5,4);
 
@@ -258,8 +259,6 @@ void MeshQuad::create_cube()
 	this->add_quad(2,6,7,3);
 	this->add_quad(0,2,3,1);
 	gl_update();
-
-	std::cout << std::endl; 
 }
 
 Vec3 MeshQuad::is_sparta ( void ) { return Vec3(); }
@@ -288,7 +287,7 @@ Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const
 		n[i] /= 4.0;
 
 	n = glm::normalize(n);
-	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
+//	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
 
 
 	return n;
@@ -296,13 +295,18 @@ Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const
 
 float MeshQuad::area_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
 {
-	// aire du quad - aire tri + aire tri
+	// Théorème de Varignon
+	Vec3 I = Vec3( (A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2 );
+	Vec3 J = Vec3( (B.x + C.x) / 2, (B.y + C.y) / 2, (B.z + C.z) / 2 );
+	Vec3 K = Vec3( (C.x + D.x) / 2, (C.y + D.y) / 2, (C.z + D.z) / 2 );
 
-	// aire du tri = 1/2 aire parallelogramme
+	// 
+	Vec3 JI = Vec3( I.x - J.x, I.y - J.y, I.z - J.z );
+	Vec3 IK = Vec3( K.x - I.x, K.y - I.y, K.z - I.z );
 
-	// aire parallelogramme: cf produit vectoriel
+	glm::mat3 m = glm::mat3(IK, JI, Vec3(1,1,1));
 
-	return 0.0f;
+	return abs(glm::determinant(m)) * 2;
 }
 
 
