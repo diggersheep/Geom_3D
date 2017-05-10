@@ -145,14 +145,12 @@ void MeshQuad::convert_quads_to_tris(const std::vector<int>& quads, std::vector<
 	// Pour chaque quad on genere 2 triangles
 	// Attention a respecter l'orientation des triangles
 	
-	int size = quads.size() / 4;
+	/*es-ce qu'on check pour les polygones canvaves ??*/
 
+	int size = quads.size() / 4;
 	for ( int i = 0 ; i < size ; i++ )
 	{
 		int j = i * 4;
-
-		// pas de check de colinéarité
-		// trop gourmand en ressources
 
 		// 1er triangle
 		tris.push_back( quads[j + 0] );
@@ -247,7 +245,6 @@ void MeshQuad::create_cube()
 		}
 	}
 			
-
 	// ajouter 6 faces (sens trigo)
 
 	this->add_quad(6,2,0,4);
@@ -259,6 +256,15 @@ void MeshQuad::create_cube()
 	this->add_quad(2,6,7,3);
 	this->add_quad(0,2,3,1);
 	gl_update();
+/*
+	Vec3 a(0,1,0);
+	Vec3 b(0,0,0);
+	Vec3 c(1,0,0);
+	Vec3 d(1,1,0);
+	Vec3 p(0.25,0.75,0);
+
+	this->is_points_in_quad(p, a, b, c, d);
+*/
 }
 
 Vec3 MeshQuad::is_sparta ( void ) { return Vec3(); }
@@ -289,7 +295,6 @@ Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const
 	n = glm::normalize(n);
 //	std::cout << "après normalisation " << n[0] << " " << n[1] << " " << n[2] << std::endl;
 
-
 	return n;
 }
 
@@ -314,25 +319,73 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 {
 	// On sait que P est dans le plan du quad.
 
+	// est dans le triangle ABC
+	if (
+		glm::dot( glm::cross((B-A), (P-A)), glm::cross((P-A), (C-A))) >= 0 && // AB^AP * AP^AC
+		glm::dot( glm::cross((A-B), (P-B)), glm::cross((P-B), (C-B))) >= 0 && // BA^BP * BP^BC
+		glm::dot( glm::cross((A-C), (P-C)), glm::cross((P-C), (B-C))) >= 0    // CA^CP * CP^CB
+	)
+	{
+		return true;
+	}
+
+	// est dans le triangle ACD
+	if (
+		glm::dot( glm::cross((B - A), (P-A)), glm::cross((P-A), (D-A))) >= 0 && // AB^AP * AP^AD
+		glm::dot( glm::cross((A-C), (P-C)), glm::cross((P-C), (D-C))) >= 0 &&   // CA^CP * CP^CD
+		glm::dot( glm::cross((A-D), (P-D)), glm::cross((P-D), (C-D))) >= 0      // DA^DP * DP^DC
+	)
+	{
+		return true;
+	}
+
 	// P est-il au dessus des 4 plans contenant chacun la normale au quad et une arete AB/BC/CD/DA ?
 	// si oui il est dans le quad
+	//      nope, c'est un quadrilataire pas un polyhèdre
 
-	return true;
+	return false;
 }
 
 bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& inter)
 {
+	if ( q < 0 )
+		return false;
+	if ( static_cast<unsigned int>(q * 4) >= this->m_quad_indices.size() )
+		return false;
+
 	// recuperation des indices de points
 	// recuperation des points
+	float d;
+	float t;
+	Vec3  I;
+	Vec3 A = this->m_points[ this->m_quad_indices[4*q+0] ];
+	Vec3 B = this->m_points[ this->m_quad_indices[4*q+1] ];
+	Vec3 C = this->m_points[ this->m_quad_indices[4*q+2] ];
+	Vec3 D = this->m_points[ this->m_quad_indices[4*q+3] ];
 
 	// calcul de l'equation du plan (N+d)
+	Vec3 n  = this->normal_of_quad(A, B, C, D);
+	Vec3 Q  = P + Dir;
+	Vec3 PQ = Q - P;
+	d       = glm::length(A);
 
 	// calcul de l'intersection rayon plan
 	// I = P + alpha*Dir est dans le plan => calcul de alpha
-
 	// alpha => calcul de I
 
+	t = ( d - glm::dot( Q - P , n) ) / ( glm::dot( PQ, n ) );
+
+	if ( 0 >= t || t >= 1 )
+		return false;
+
+	I = P + t * Dir;
+
 	// I dans le quad ?
+	if ( this->is_points_in_quad(I, A, B, C, D) )
+	{
+		inter = I;
+		return true;
+	}
 
 	return false;
 }
