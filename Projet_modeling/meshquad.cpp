@@ -316,7 +316,7 @@ float MeshQuad::area_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const 
 
 
 bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
-{
+{/*
 	// On sait que P est dans le plan du quad.
 
 	// est dans le triangle ABC
@@ -337,7 +337,7 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 	)
 	{
 		return true;
-	}
+	}*/
 
 	// P est-il au dessus des 4 plans contenant chacun la normale au quad et une arete AB/BC/CD/DA ?
 	// si oui il est dans le quad
@@ -348,6 +348,7 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 
 bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& inter)
 {
+	/*
 	if ( q < 0 )
 		return false;
 	if ( static_cast<unsigned int>(q * 4) >= this->m_quad_indices.size() )
@@ -381,13 +382,13 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 	}
 
 	I = P + t * Dir;
-
+/*
 	// I dans le quad ?
 	if ( this->is_points_in_quad(I, A, B, C, D) )
 	{
 		inter = I;
 		return true;
-	}
+	}*/
 
 	return false;
 }
@@ -396,15 +397,10 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 {
 	// on parcours tous les quads
-	unsigned int size = this->m_quad_indices.size() / 4;
 	int inter = -1;
-
-	for ( unsigned int i = 0 ; i < size ; i++ )
-	{	
+	
 		// on teste si il y a intersection avec le rayon
 		// on garde le plus proche (de P)
-
-	}
 
 	return inter;
 }

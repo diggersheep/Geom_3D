@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB
 CFLAGS        = -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -m64 -pipe -DSHADERPATH=/home/alex/Documents/fac/Geom3D/Geom_3D/Projet_modeling -std=c++11 -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -m64 -pipe -DSHADERPATH=/home/alex/Bureau/TP_Geom3D/Projet_modeling -std=c++11 -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I. -I.. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtOpenGL -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtXml -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
 DEL_FILE      = rm -f
@@ -33,10 +33,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = proj_model1.0.0
-DISTDIR = /home/alex/Documents/fac/Geom3D/Geom_3D/Projet_modeling/.tmp/proj_model1.0.0
+DISTDIR = /home/alex/Bureau/TP_Geom3D/Projet_modeling/.tmp/proj_model1.0.0
 LINK          = g++
-LFLAGS        = -m64 -Wl,-rpath,/home/alex/Documents/fac/Geom3D/Geom_3D/Projet_modeling/../bin -Wl,-O1
-LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -L/home/alex/Documents/fac/Geom3D/Geom_3D/Projet_modeling/../bin -lOGLRender -lQGLViewer33 -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Xml -lQt5Core -lGL -lpthread 
+LFLAGS        = -m64 -Wl,-rpath,/home/alex/Bureau/TP_Geom3D/Projet_modeling/../bin -Wl,-O1
+LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -L/home/alex/Bureau/TP_Geom3D/Projet_modeling/../bin -lOGLRender -lQGLViewer33 -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Xml -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -218,8 +218,8 @@ Makefile: Projet_modeling.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		Projet_modeling.pro \
-		/home/alex/Documents/fac/Geom3D/Geom_3D/bin/libOGLRender.prl \
-		/home/alex/Documents/fac/Geom3D/Geom_3D/bin/libQGLViewer33.prl \
+		/home/alex/Bureau/TP_Geom3D/bin/libOGLRender.prl \
+		/home/alex/Bureau/TP_Geom3D/bin/libQGLViewer33.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5OpenGL.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Gui.prl \
@@ -288,8 +288,8 @@ Makefile: Projet_modeling.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf:
 Projet_modeling.pro:
-/home/alex/Documents/fac/Geom3D/Geom_3D/bin/libOGLRender.prl:
-/home/alex/Documents/fac/Geom3D/Geom_3D/bin/libQGLViewer33.prl:
+/home/alex/Bureau/TP_Geom3D/bin/libOGLRender.prl:
+/home/alex/Bureau/TP_Geom3D/bin/libQGLViewer33.prl:
 /usr/lib/x86_64-linux-gnu/libQt5OpenGL.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Gui.prl:
@@ -444,7 +444,7 @@ moc_viewer.cpp: ../GL/glew.h \
 		../OGLRender/shaderprogramflat.h \
 		meshquad.h \
 		viewer.h
-	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/alex/Documents/fac/Geom3D/Geom_3D/Projet_modeling -I/home/alex/Documents/fac/Geom3D/Geom_3D -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtXml -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include viewer.h -o moc_viewer.cpp
+	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/alex/Bureau/TP_Geom3D/Projet_modeling -I/home/alex/Bureau/TP_Geom3D -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtXml -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include viewer.h -o moc_viewer.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
