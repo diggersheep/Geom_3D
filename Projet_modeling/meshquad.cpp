@@ -363,11 +363,10 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 	Vec3 C = this->m_points[ this->m_quad_indices[4*q+2] ];
 	Vec3 D = this->m_points[ this->m_quad_indices[4*q+3] ];
 
-	// calcul de l'equation du plan (N+d)
-	Vec3 n  = this->normal_of_quad(A, B, C, D);
-	Vec3 Q  = P + Dir;
-	Vec3 PQ = Q - P;
-	d       = glm::length(A);
+	Vec3 n  = this->normal_of_quad(A, B, C, D); // normale au plan
+	Vec3 Q  = P + Dir; // point Q, extémimité du rayon PQ
+	Vec3 PQ = Q - P; // 
+	d       = glm::length(A); //
 
 	// calcul de l'intersection rayon plan
 	// I = P + alpha*Dir est dans le plan => calcul de alpha
@@ -376,7 +375,10 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 	t = ( d - glm::dot( Q - P , n) ) / ( glm::dot( PQ, n ) );
 
 	if ( 0 >= t || t >= 1 )
+	{
+		std::cout << "Pas dans le segment PQ" << std::endl;
 		return false;
+	}
 
 	I = P + t * Dir;
 
@@ -394,10 +396,15 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 {
 	// on parcours tous les quads
-	// on teste si il y a intersection avec le rayon
-	// on garde le plus proche (de P)
-
+	unsigned int size = this->m_quad_indices.size() / 4;
 	int inter = -1;
+
+	for ( unsigned int i = 0 ; i < size ; i++ )
+	{	
+		// on teste si il y a intersection avec le rayon
+		// on garde le plus proche (de P)
+
+	}
 
 	return inter;
 }
