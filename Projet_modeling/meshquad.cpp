@@ -351,7 +351,6 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 	Vec3 quad[4] = { A, B, C, D };
 
 	Vec3 n = this->normal_of_quad(A, B, C, D);
-	std::cout << "point P " << P << std::endl;
 
 	for ( int i = 0 ; i < 4 ; i++ )
 	{
@@ -460,7 +459,7 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 {
 	int   inter    = -1;
-	float distance = -1;
+	float d = -1;
 	Vec3  I;
 
 	int n = 0;
@@ -470,25 +469,27 @@ int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 	std::cout << " P => " << P << std::endl;
 	
 	int size = this->m_quad_indices.size() / 4;
+
 	for ( int i = 0 ; i < size ; i++ )
 	{
-	//	std::cout << "(" << (i+1) << "/" << size << ")" << std::endl;
-		if ( intersect_ray_quad(P, Dir, i, I) )
+		Vec3 I;
+		if ( this->intersect_ray_quad(P, Dir, i, I) )
 		{
-			n++;
-			float tmp = glm::distance(P, I);
-			std::cout << "    face #" << i << " -> distance = " << tmp << " | " << I << std::endl;
-			if ( distance < 0 )
+			if ( inter == -1 )
 			{
-				distance = tmp;
+				d     = glm::distance(P, I);
 				inter = i;
 			}
-			else if ( tmp <= distance )
+			else
 			{
-				distance = tmp;
-				inter    = i;
+				float tmp = glm::distance(P, I);
+				if ( tmp < d )
+				{
+					d     = tmp;
+					inter = i;
+				}
 			}
-		}	
+		}
 	}
 	
 	std::cout << "Face :: " << inter << std::endl;
