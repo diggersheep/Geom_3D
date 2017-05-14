@@ -94,23 +94,57 @@ void Viewer::keyPressEvent(QKeyEvent *event)
 			// Attention ctrl c utilise pour screen-shot !
 			if (!(event->modifiers() & Qt::ControlModifier))
 				m_mesh.create_cube();
-		break;
-
+			break;
 		// e extrusion
 		case Qt::Key_E:
-		break;
+			if ( m_selected_quad != -1 )
+			{
+				m_mesh.extrude_quad(m_selected_quad);
+			}
+			break;
+
 		// +/- decale
-		case Qt::Key_Less:
-		break;
-		case Qt::Key_Greater:
-		break;
+		case Qt::Key_Minus:
+			if ( m_selected_quad != -1 )
+			{
+				m_mesh.decale_quad(m_selected_quad, -0.05);
+			}
+			break;
+		case Qt::Key_Plus:
+		
+			if ( m_selected_quad != -1 )
+			{
+				m_mesh.decale_quad(m_selected_quad,  0.05);
+			}
+			break;
+		
 		// z/Z shrink
 		case Qt::Key_Z:
+			if ( m_selected_quad != -1 )
+			{
+				if (event->modifiers() & Qt::ShiftModifier)
+				{ // Zz
+					m_mesh.shrink_quad( m_selected_quad, 1.1 );
+				}
+				else
+				{ // z
+					m_mesh.shrink_quad( m_selected_quad, 0.9 );
+				}
+			}
 		break;
 		// t/T tourne
 		case Qt::Key_T:
-			// t
-			// T
+			if ( m_selected_quad != -1 )
+			{
+				if (event->modifiers() & Qt::ShiftModifier)
+				{ // T
+					m_mesh.tourne_quad( m_selected_quad, 1 );
+				}
+				else
+				{ // t
+					m_mesh.tourne_quad( m_selected_quad, -1 );
+				}
+			}
 		break;
 		// Attention au cas m_selected_quad == -1
 
@@ -120,6 +154,7 @@ void Viewer::keyPressEvent(QKeyEvent *event)
 	}
 
 	// retrace la fenetre
+	m_selected_frame = m_mesh.local_frame(m_selected_quad);
 	updateGL();
 	QGLViewer::keyPressEvent(event);
 }

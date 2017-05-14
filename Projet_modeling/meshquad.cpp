@@ -4,6 +4,24 @@
 
 #include <unistd.h>
 
+
+/**/
+float rad_to_deg ( float rad )
+{
+	return rad * 360 / (float)(2 * M_PI );
+}
+int sign ( float x )
+{
+	if ( x == 0 )
+		return 0;
+	else if ( x < 0 )
+		return -1;
+	else if ( x > 0 )
+		return 1;
+}
+/**/
+
+
 MeshQuad::MeshQuad():
 	m_nb_ind_edges(0)
 {
@@ -114,7 +132,7 @@ void MeshQuad::clear()
 int MeshQuad::add_vertex(const Vec3& P)
 {
 	m_points.push_back( P );
-	return m_points.size();
+	return m_points.size() - 1;
 }
 
 
@@ -236,7 +254,6 @@ void MeshQuad::create_cube()
 
 	double coef = 2; //taille initiale du cube
 
-
 	this->add_vertex( Vec3(0*coef, 0*coef, 0*coef));
 	this->add_vertex( Vec3(1*coef, 0*coef, 0*coef));
 	this->add_vertex( Vec3(1*coef, 1*coef, 0*coef));
@@ -257,6 +274,20 @@ void MeshQuad::create_cube()
 	this->add_quad(3,2,5,4);
 
 
+
+	Vec3 A(0,0,0);
+	Vec3 B(1,0,0);
+	Vec3 C(1,1,0);
+	Vec3 D(0,1,0);
+	Vec3 P(0.5, 10.5, 0.0001);
+
+	bool a = is_points_in_quad( P, A, B, C, D );
+
+	if ( a )
+		std::cout << "le point est dedans" << std::endl;
+	else
+		std::cout << "le point n'est pas dedans" << std::endl;
+
 	gl_update();
 
 }
@@ -268,21 +299,23 @@ Vec3 MeshQuad::normal_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const
 	// le produit vectoriel n'est pas commutatif U ^ V = - V ^ U
 	// ne pas oublier de normaliser le resultat.
 
-	Vec3 AB = Vec3( B[0] - A[0], B[1] - A[1], B[2] - A[2] );
-	Vec3 BC = Vec3( C[0] - B[0], C[1] - B[1], C[2] - B[2] );
-	Vec3 CD = Vec3( D[0] - C[0], D[1] - C[1], D[2] - C[2] );
-	Vec3 DA = Vec3( A[0] - D[0], A[1] - D[1], A[2] - D[2] );
+	Vec3 AB = B - A;
+	Vec3 BC = C - B;
+	Vec3 CD = D - C;
+	Vec3 DA = A - D;
 
 	Vec3 n = Vec3();
 
-	n += this->is_sparta();
-	n += glm::cross(AB, BC);
-	n += glm::cross(BC, CD);
-	n += glm::cross(CD, DA);
-	n += glm::cross(DA, AB);
+	n += this->is_sparta(); // 300
+	n += glm::cross(BC, AB);
+	n += glm::cross(CD, BC);
+	n += glm::cross(DA, CD);
+	n += glm::cross(AB, DA);
 
-	for ( int i = 0 ; i < 3 ; i++)
-		n[i] /= 4.0;
+	// pour faire la moyenne des normales (non unitaires)
+	n.x /= 4.0;
+	n.y /= 4.0;
+	n.z /= 4.0;
 
 	n = glm::normalize(n);
 
@@ -305,15 +338,7 @@ float MeshQuad::area_of_quad(const Vec3& A, const Vec3& B, const Vec3& C, const 
 	return abs(glm::determinant(m)) * 2;
 }
 
-int sign ( float x )
-{
-	if ( x == 0 )
-		return 0;
-	else if ( x < 0 )
-		return -1;
-	else if ( x > 0 )
-		return 1;
-}
+
 
 bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, const Vec3& C, const Vec3& D)
 {
@@ -346,7 +371,7 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 	// si oui il est dans le quad
 	//      nope, c'est un quadrilataire pas un polyhèdre
 
-	std::vector<float> algebric_distance;
+	float algebric_distance[4];
 	std::vector<Vec3> quad;
 	quad.push_back(A);
 	quad.push_back(B);
@@ -354,23 +379,36 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 	quad.push_back(D);
 
 	Vec3 n = this->normal_of_quad(A, B, C, D);
+	std::cout << "point P " << P << std::endl;
 
 	for ( int i = 0 ; i < 4 ; i++ )
 	{
 		Vec3 I1 = quad[i];
+
 		Vec3 I2 = quad[(i+1) % 4];
 
 		float p   = glm::length(I1);
 		float tmp = glm::length(I2);
 		if ( tmp < p ) p = tmp;
 
-		Vec3 n_bis = glm::cross( n, I2 - I1 );
+//		Vec3 n_bis = glm::cross( (I2 - I1) , n );
+		Vec3 n_bis = glm::cross( n, (I2 - I1) );
 
 		tmp = glm::dot( n, n_bis ) - p;
-		algebric_distance.push_back( tmp );
+		float tmp2 = glm::dot( n, glm::cross( n, (I2 - I1) ) ) - p;
+	
+		std::cout << "normale " << i << " = " << n_bis << std::endl;	
+		std::cout << "dist alg " << i << " = " << tmp << " | " << tmp2 << std::endl;
+
+		if ( sign(tmp) == sign(1) )
+		{
+			std::cout << "fail sign " << i << std::endl;
+			return false;
+		}
+	//	algebric_distance[i] = ( tmp );
 	}
 
-	
+	/*
 	for ( int i = 0 ; i < 4 ; i++ )
 	{
 		int j = i - 1;
@@ -378,13 +416,8 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 
 		int s1 = sign( algebric_distance[i] );
 		int s2 = sign( algebric_distance[j] );
-
-		if ( s1 != s2 )
-		{
-			std::cout << "signe fail @" << i << " " << j << std::endl;
-			return false;
-		}
 	}
+	*/
 
 	std::cout << "signe ok" << std::endl;
 	return true;
@@ -416,7 +449,7 @@ bool MeshQuad::intersect_ray_quad(const Vec3& P, const Vec3& Dir, int q, Vec3& i
 
 	if (  abs(glm::dot( n, Dir )) < precision )
 	{
-		std::cout << "i fail (précision)" << std::endl;
+	//	std::cout << "i fail (précision)" << std::endl;
 		return false;
 	}
 
@@ -475,6 +508,8 @@ int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 	float distance = -1;
 	Vec3  I;
 
+	int n = 0;
+
 	std::cout << std::endl;
 
 	std::cout << " P => " << P << std::endl;
@@ -482,9 +517,10 @@ int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 	int size = this->m_quad_indices.size() / 4;
 	for ( int i = 0 ; i < size ; i++ )
 	{
-		std::cout << "(" << (i+1) << "/" << size << ")" << std::endl;
+	//	std::cout << "(" << (i+1) << "/" << size << ")" << std::endl;
 		if ( intersect_ray_quad(P, Dir, i, I) )
 		{
+			n++;
 			float tmp = glm::distance(P, I);
 			std::cout << "    face #" << i << " -> distance = " << tmp << " | " << I << std::endl;
 			if ( distance < 0 )
@@ -501,9 +537,9 @@ int MeshQuad::intersected_visible(const Vec3& P, const Vec3& Dir)
 	}
 	
 	std::cout << "Face :: " << inter << std::endl;
+	std::cout << "Nombre d'intersection " << n << std::endl;
 	return inter;
 }
-
 
 Mat4 MeshQuad::local_frame(int q)
 {
@@ -517,8 +553,10 @@ Mat4 MeshQuad::local_frame(int q)
 	// la derniere colonne l'origine du repere
 
 	float size; // scale
-	Vec3 M; // milieu du quad
-	Vec3 n; //normale du quad
+	Vec3 M;  // milieu du quad
+	Vec3 n;  // normale du quad
+	Vec3 Y;
+	Vec3 AB; // vecteur AB 
 	Mat4 t = Mat4(); // matrice de transformation 3D
 
 	Vec3 A = this->m_points[this->m_quad_indices[4*q + 0]];
@@ -527,7 +565,9 @@ Mat4 MeshQuad::local_frame(int q)
 	Vec3 D = this->m_points[this->m_quad_indices[4*q + 3]];
 
 	// ici Z = N et X = AB
-	n = this->normal_of_quad(A, B, C, D);
+	n  = this->normal_of_quad(A, B, C, D);
+	AB = B - A;
+	Y  = glm::cross(n, AB);
 
 	// Origine le centre de la face
 	M = (A + B + C + D);
@@ -549,26 +589,58 @@ Mat4 MeshQuad::local_frame(int q)
 
 	// calcul de la matrice
 
+
 	t *= translate( M.x, M.y, M.z );
+	t *= scale( size, size, size );
 
 	return t;
 }
 
 void MeshQuad::extrude_quad(int q)
 {
-	// recuperation des indices de points
+	float height;
+	float coef = 1;
+	Vec3 t;
+	Vec3 n;
 
+	float i_points[4];
+	float new_i_points[4];
+	Vec3  points[4];
+	Vec3  new_points[4];
+
+	// recuperation des indices de points
 	// recuperation des points
+	for ( int i = 0 ; i  < 4 ; i++ )
+	{
+		i_points[i] = this->m_quad_indices[q*4 + i];
+		points[i]   = this->m_points[i_points[i]];
+	}
+
 
 	// calcul de la normale
-
+	n = this->normal_of_quad(points[0], points[1], points[2], points[3]);
+	
 	// calcul de la hauteur
-
+	height = sqrt( this->area_of_quad(points[0], points[1], points[2], points[3]) ) * coef;
+	
 	// calcul et ajout des 4 nouveaux points
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		new_points[i] = points[i] + (n * height);
+		new_i_points[i] = this->add_vertex(new_points[i]);
 
-	// on remplace le quad initial par le quad du dessu
+		// on remplace le quad initial par le quad du dessu
+		this->m_quad_indices[q*4 + i] = new_i_points[i];
+	
+		std::cout << "new point (i:"  << new_i_points[i] << ") : " << new_points[i] << std::endl;
+	}
 
 	// on ajoute les 4 quads des cotes
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		int j = (i+1) % 4;
+		this->add_quad( i_points[i], i_points[j], new_i_points[j], new_i_points[i] );	
+	}
 
 	gl_update();
 }
@@ -576,13 +648,36 @@ void MeshQuad::extrude_quad(int q)
 
 void MeshQuad::decale_quad(int q, float d)
 {
-	// recuperation des indices de points
+	float height;
+	Vec3 t;
+	Vec3 n;
 
+	float i_points[4];
+	Vec3  points[4];
+	// recuperation des indices de points	
 	// recuperation des (references de) points
+	for ( int i = 0 ; i  < 4 ; i++ )
+	{
+		i_points[i] = this->m_quad_indices[q*4 + i];
+		points[i]   = this->m_points[i_points[i]];
+	}
 
 	// calcul de la normale
+	n = this->normal_of_quad(
+		points[0],
+		points[1],
+		points[2],
+		points[3]
+	);
+	height = sqrt( this->area_of_quad(points[0], points[1], points[2], points[3]) ) * d;
+	t      = n * height;
 
 	// modification des points
+	// calcul et ajout des 4 nouveaux points
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		this->m_points[i_points[i]] += t;
+	}
 
 	gl_update();
 }
@@ -590,15 +685,32 @@ void MeshQuad::decale_quad(int q, float d)
 
 void MeshQuad::shrink_quad(int q, float s)
 {
-	// recuperation des indices de points
+	int  i_points[4];
+	Vec3 points[4];
+	Vec3 M;
 
+	// recuperation des indices de points
 	// recuperation des (references de) points
+	for ( int i = 0 ; i  < 4 ; i++ )
+	{
+		i_points[i] = this->m_quad_indices[q*4 + i];
+		points[i]   = this->m_points[i_points[i]];
+	}
+
+	s -= 1;
 
 	// ici  pas besoin de passer par une matrice
 	// calcul du centre
+	M = (points[0] + points[1] + points[2] + points[3]);
+	M.x /= 4;
+	M.y /= 4;
+	M.z /= 4;
 
-	 // modification des points
+	// modification des points
+	for ( int i = 0 ; i < 4 ; i++ )
+		this->m_points[i_points[i]] -= (M - points[i]) * s;
 
+	std::cout << "scale " << s + 1 << std::endl;
 	gl_update();
 }
 

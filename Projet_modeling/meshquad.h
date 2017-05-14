@@ -8,7 +8,10 @@
 
 #include <matrices.h>
 
-
+// pour les systèmes non unix
+//#ifndef M_PI
+//   #define M_PI 3.14159265358979323846
+//#endif
 
 
 class MeshQuad
@@ -194,11 +197,12 @@ public:
 private:
 	/**
 	 * @ brief check si une arrête d'un quad est dans la liste des bords
-	 * @ param [in]
-	 * @ param [out]
+	 * @ param i1 indice du point de l'arrête [in]
+	 * @ param i2 indice du point de l'arrête [in]
+	 * @ param edges tableai des indices des arrêtes [in]
 	 */
 	bool borrowed_edges (int i1, int i2, const std::vector<int>& edges);
-	
+
 	Vec3 is_sparta ( void );
 };
 
