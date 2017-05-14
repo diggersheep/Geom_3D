@@ -394,11 +394,10 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 //		Vec3 n_bis = glm::cross( (I2 - I1) , n );
 		Vec3 n_bis = glm::cross( n, (I2 - I1) );
 
-		tmp = glm::dot( n, n_bis ) - p;
-		float tmp2 = glm::dot( n, glm::cross( n, (I2 - I1) ) ) - p;
+		tmp = glm::dot( P, n_bis ) - p;
 	
 		std::cout << "normale " << i << " = " << n_bis << std::endl;	
-		std::cout << "dist alg " << i << " = " << tmp << " | " << tmp2 << std::endl;
+		std::cout << "dist alg " << i << " = " << tmp << std::endl;
 
 		if ( sign(tmp) == sign(1) )
 		{
@@ -552,31 +551,38 @@ Mat4 MeshQuad::local_frame(int q)
 	// les trois premieres colones: X,Y,Z locaux
 	// la derniere colonne l'origine du repere
 
+	Vec3  points[4];
+	float i_points[4];
+
 	float size; // scale
 	Vec3 M;  // milieu du quad
 	Vec3 n;  // normale du quad
-	Vec3 Y;
 	Vec3 AB; // vecteur AB 
 	Mat4 t = Mat4(); // matrice de transformation 3D
 
-	Vec3 A = this->m_points[this->m_quad_indices[4*q + 0]];
-	Vec3 B = this->m_points[this->m_quad_indices[4*q + 1]];
-	Vec3 C = this->m_points[this->m_quad_indices[4*q + 2]];
-	Vec3 D = this->m_points[this->m_quad_indices[4*q + 3]];
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		i_points[i] = this->m_quad_indices[4*q + i];
+		points[i]   = this->m_points[ i_points[i] ];
+	}
 
 	// ici Z = N et X = AB
-	n  = this->normal_of_quad(A, B, C, D);
-	AB = B - A;
-	Y  = glm::cross(n, AB);
+	n = this->normal_of_quad(
+		points[0],
+		points[1],
+		points[2],
+		points[3]
+	);
+	AB = points[0] - points[1];
 
 	// Origine le centre de la face
-	M = (A + B + C + D);
+	M = (points[0] + points[1] + points[2] + points[3]);
 	M.x /= 4;
 	M.y /= 4;
 	M.z /= 4;
 
 	// longueur des axes : [AB]/2
-	size = glm::length(B - A) / 2;
+	size = glm::length(AB) / 2;
 
 	// recuperation des indices de points
 	// recuperation des points
@@ -588,8 +594,6 @@ Mat4 MeshQuad::local_frame(int q)
 	// calcul de la taille
 
 	// calcul de la matrice
-
-
 	t *= translate( M.x, M.y, M.z );
 	t *= scale( size, size, size );
 
@@ -717,16 +721,60 @@ void MeshQuad::shrink_quad(int q, float s)
 
 void MeshQuad::tourne_quad(int q, float a)
 {
-	// recuperation des indices de points
+	int  i_points[4];
+	Vec3 points[4];
+	Vec3 M;
+	Vec3 n;
 
+	// recuperation des indices de points
 	// recuperation des (references de) points
+	for ( int i = 0 ; i  < 4 ; i++ )
+	{
+		i_points[i] = this->m_quad_indices[q*4 + i];
+		points[i]   = this->m_points[i_points[i]];
+	}
+
+	// calcul de la normale
+	n = this->normal_of_quad( points[0], points[1], points[2], points[3] );
+
+	// Centre du quad
+	M = (points[0] + points[1] + points[2] + points[3]);
+	M.x /= 4;
+	M.y /= 4;
+	M.z /= 4;
 
 	// generation de la matrice de transfo:
 	// tourne autour du Z de la local frame
 	// indice utilisation de glm::inverse()
 
-	// Application au 4 points du quad
+	//     Nope ! glm::rotate() c'est plus pratique ;)
 
+
+
+	// matrice de transformation par rapport à la normale n
+	a *= ( M_PI / 180.0 ); // deg -> rad
+	Mat4 t = glm::rotate( a , n );
+
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		Vec4 p( this->m_points[i_points[i]], 1 );
+
+		// translation vers l'origine
+		p -= Vec4( M, 0) ;
+
+		// rotation
+		p = t * p;
+
+		// translation inverse
+		p += Vec4( M, 0) ;
+
+		// on extrait les coords
+		// Je sais pas trop comment faire autrement ^^
+		this->m_points[i_points[i]].x = p.x;
+		this->m_points[i_points[i]].y = p.y;
+		this->m_points[i_points[i]].z = p.z;
+
+	}
 
 	gl_update();
 }
