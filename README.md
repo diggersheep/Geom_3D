@@ -2,7 +2,6 @@
 
 __*Auteurs*__:
 * Alexandre __COMBEAU__
-* François __HALLER__
 
 ## Pour le build
 

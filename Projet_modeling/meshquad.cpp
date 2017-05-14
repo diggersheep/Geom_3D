@@ -16,7 +16,7 @@ int sign ( float x )
 		return 0;
 	else if ( x < 0 )
 		return -1;
-	else if ( x > 0 )
+	else // ( x > 0 )
 		return 1;
 }
 /**/
@@ -344,79 +344,35 @@ bool MeshQuad::is_points_in_quad(const Vec3& P, const Vec3& A, const Vec3& B, co
 {
 	// On sait que P est dans le plan du quad.
 
-	// est dans le triangle ABC
-/*
-	if (
-		glm::dot( glm::cross((B-A), (P-A)), glm::cross((P-A), (C-A))) >= 0 && // AB^AP * AP^AC
-		glm::dot( glm::cross((A-B), (P-B)), glm::cross((P-B), (C-B))) >= 0 && // BA^BP * BP^BC
-		glm::dot( glm::cross((A-C), (P-C)), glm::cross((P-C), (B-C))) >= 0    // CA^CP * CP^CB
-	)
-	{
-		std::cout << "  ok1" << std::endl;
-		return true;
-	}
-
-	// est dans le triangle ACD
-	if (
-		glm::dot( glm::cross((B - A), (P-A)), glm::cross((P-A), (D-A))) >= 0 && // AB^AP * AP^AD
-		glm::dot( glm::cross((A-C), (P-C)), glm::cross((P-C), (D-C))) >= 0 &&   // CA^CP * CP^CD
-		glm::dot( glm::cross((A-D), (P-D)), glm::cross((P-D), (C-D))) >= 0      // DA^DP * DP^DC
-	)
-	{
-		std::cout << "  ok2" << std::endl;
-		return true;
-	}
-*/
 	// P est-il au dessus des 4 plans contenant chacun la normale au quad et une arete AB/BC/CD/DA ?
 	// si oui il est dans le quad
 	//      nope, c'est un quadrilataire pas un polyhèdre
 
-	float algebric_distance[4];
-	std::vector<Vec3> quad;
-	quad.push_back(A);
-	quad.push_back(B);
-	quad.push_back(C);
-	quad.push_back(D);
+	Vec3 quad[4] = { A, B, C, D };
 
 	Vec3 n = this->normal_of_quad(A, B, C, D);
 	std::cout << "point P " << P << std::endl;
 
 	for ( int i = 0 ; i < 4 ; i++ )
 	{
+		int j = ( i + 1 ) % 4;
 		Vec3 I1 = quad[i];
+		Vec3 I2 = quad[j];
 
-		Vec3 I2 = quad[(i+1) % 4];
+		Vec3 n_bis = glm::cross(n, (I2 - I1));
 
 		float p   = glm::length(I1);
 		float tmp = glm::length(I2);
 		if ( tmp < p ) p = tmp;
 
-//		Vec3 n_bis = glm::cross( (I2 - I1) , n );
-		Vec3 n_bis = glm::cross( n, (I2 - I1) );
+		float d = P.x * n_bis.x + P.y * n_bis.y + P.z * n_bis.z - p;
 
-		tmp = glm::dot( P, n_bis ) - p;
-	
-		std::cout << "normale " << i << " = " << n_bis << std::endl;	
-		std::cout << "dist alg " << i << " = " << tmp << std::endl;
-
-		if ( sign(tmp) == sign(1) )
+		if ( sign(d) == sign(1) )
 		{
-			std::cout << "fail sign " << i << std::endl;
+			std::cout << "sign fail " << i << std::endl;
 			return false;
 		}
-	//	algebric_distance[i] = ( tmp );
 	}
-
-	/*
-	for ( int i = 0 ; i < 4 ; i++ )
-	{
-		int j = i - 1;
-		if ( j < 0 ) j = 3;
-
-		int s1 = sign( algebric_distance[i] );
-		int s2 = sign( algebric_distance[j] );
-	}
-	*/
 
 	std::cout << "signe ok" << std::endl;
 	return true;
@@ -619,7 +575,6 @@ void MeshQuad::extrude_quad(int q)
 		i_points[i] = this->m_quad_indices[q*4 + i];
 		points[i]   = this->m_points[i_points[i]];
 	}
-
 
 	// calcul de la normale
 	n = this->normal_of_quad(points[0], points[1], points[2], points[3]);
