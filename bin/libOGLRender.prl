@@ -1,4 +1,4 @@
-QMAKE_PRL_BUILD_DIR = /home/alex/Bureau/Geom3D/TP_Geom3D/OGLRender
+QMAKE_PRL_BUILD_DIR = /home/alex/Documents/fac/Geom3D/Geom_3D/OGLRender
 QMAKE_PRO_INPUT = OGLRender.pro
 QMAKE_PRL_TARGET = libOGLRender.so.1.0.0
 QMAKE_PRL_CONFIG = lex yacc exceptions depend_includepath testcase_targets import_plugins import_qpa_plugin qt warn_on release link_prl incremental shared qpa no_mocdepend release qt_no_framework linux unix posix gcc dynamiclib shared create_prl have_target dll thread uic opengl moc resources
